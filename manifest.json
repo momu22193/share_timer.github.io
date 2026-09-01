@@ -1,0 +1,17 @@
+{
+"name": "作業通話タイマー",
+"short_name": "作業タイマー",
+"description": "50分集中・10分休憩の作業通話タイマー",
+"start_url": "./",
+"display": "standalone",
+"background_color": "#f5f5f5",
+"theme_color": "#f5f5f5",
+"orientation": "portrait",
+"icons": [
+{
+"src": "icon-192.png",
+"sizes": "192x192",
+"type": "image/png"
+}
+]
+}
