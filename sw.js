@@ -10,7 +10,6 @@ self.addEventListener(
 "install",
 (event) => {
 
-```
     event.waitUntil(
 
         caches
@@ -26,7 +25,6 @@ self.addEventListener(
 
     self.skipWaiting();
 }
-```
 
 );
 
@@ -34,7 +32,6 @@ self.addEventListener(
 "activate",
 (event) => {
 
-```
     event.waitUntil(
 
         caches
@@ -59,7 +56,7 @@ self.addEventListener(
 
     self.clients.claim();
 }
-```
+
 
 );
 
@@ -67,7 +64,6 @@ self.addEventListener(
 "fetch",
 (event) => {
 
-```
     event.respondWith(
 
         caches
@@ -80,6 +76,5 @@ self.addEventListener(
             })
     );
 }
-```
 
 );
