@@ -418,5 +418,49 @@
 
 </script>
 
+<script type="module">
+    import { initializeApp } 
+        from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+
+    import { getAuth, signInAnonymously } 
+        from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+    import { getDatabase } 
+        from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
+
+
+    // Firebase設定
+    const firebaseConfig = {
+        apiKey: "AIzaSyDcFTA9eFDGZqV7Vndbpoee4U75i5IYsxoc",
+        authDomain: "share-timer-dbe49.firebaseapp.com",
+        databaseURL: "https://share-timer-dbe49-default-rtdb.firebaseio.com",
+        projectId: "share-timer-dbe49",
+        storageBucket: "share-timer-dbe49.firebasestorage.app",
+        messagingSenderId: "917755642196",
+        appId: "1:917755642196:web:e3f9b3f2863012b6a88c1"
+    };
+
+
+    // Firebase初期化
+    const app = initializeApp(firebaseConfig);
+
+    // Authentication
+    const auth = getAuth(app);
+
+    // Realtime Database
+    const db = getDatabase(app);
+
+
+    // 匿名ログイン
+    signInAnonymously(auth)
+        .then(() => {
+            console.log("Firebase匿名認証成功");
+            console.log("UID:", auth.currentUser.uid);
+        })
+        .catch((error) => {
+            console.error("Firebase匿名認証エラー:", error);
+        });
+</script>
+
 </body>
 </html>
