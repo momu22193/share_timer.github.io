@@ -4,308 +4,815 @@
 <head>
     <meta charset="UTF-8">
 
-<!-- スマートフォン対応 -->
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+    <!-- スマートフォン対応 -->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<!-- PWA -->
-<meta name="theme-color" content="#f5f5f5">
-<link rel="manifest" href="manifest.json">
+    <!-- PWA -->
+    <meta name="theme-color" content="#f5f5f5">
+    <link rel="manifest" href="manifest.json">
 
-<!-- iPhone / iPad -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta
-    name="apple-mobile-web-app-status-bar-style"
-    content="default"
->
-<meta
-    name="apple-mobile-web-app-title"
-    content="作業通話タイマー"
->
+    <!-- iPhone / iPad -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="default"
+    >
+    <meta
+        name="apple-mobile-web-app-title"
+        content="作業通話タイマー"
+    >
 
-<title>作業通話タイマー</title>
+    <title>作業通話タイマー</title>
 
-<style>
-    * {
-        box-sizing: border-box;
-    }
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-    body {
-        margin: 0;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
 
-        font-family:
-            -apple-system,
-            BlinkMacSystemFont,
-            "Segoe UI",
-            sans-serif;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
 
-        background: #f5f5f5;
-    }
+            background: #f5f5f5;
+        }
 
-    .timer {
-        width: min(90%, 400px);
-        padding: 40px 25px;
+        .timer {
+            width: min(90%, 400px);
+            padding: 35px 25px;
 
-        text-align: center;
+            text-align: center;
 
-        background: white;
-        border-radius: 20px;
+            background: white;
+            border-radius: 20px;
 
-        box-shadow:
-            0 5px 20px rgba(0, 0, 0, 0.1);
-    }
+            box-shadow:
+                0 5px 20px rgba(0, 0, 0, 0.1);
+        }
 
-    .title {
-        font-size: 20px;
-        margin-bottom: 30px;
-    }
+        .title {
+            font-size: 20px;
+            margin-bottom: 25px;
+        }
 
-    .mode {
-        font-size: 28px;
-        font-weight: bold;
-        margin-bottom: 15px;
-    }
+        .mode {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
 
-    .time {
-        font-size: clamp(60px, 18vw, 80px);
-        font-weight: bold;
+        .time {
+            font-size: clamp(60px, 18vw, 80px);
+            font-weight: bold;
 
-        font-variant-numeric: tabular-nums;
+            font-variant-numeric: tabular-nums;
 
-        margin-bottom: 15px;
-    }
+            margin-bottom: 15px;
+        }
 
-    .set {
-        font-size: 18px;
-        color: #666;
+        .set {
+            font-size: 18px;
+            color: #666;
 
-        margin-bottom: 30px;
-    }
+            margin-bottom: 25px;
+        }
 
-    button {
-        padding: 12px 20px;
-        margin: 5px;
+        button {
+            padding: 12px 20px;
+            margin: 5px;
 
-        border: none;
-        border-radius: 10px;
+            border: none;
+            border-radius: 10px;
 
-        font-size: 16px;
+            font-size: 16px;
 
-        cursor: pointer;
-    }
+            cursor: pointer;
+        }
 
-    button:active {
-        transform: scale(0.97);
-    }
-</style>
+        button:active {
+            transform: scale(0.97);
+        }
 
+        button:disabled {
+            opacity: 0.45;
+            cursor: default;
+        }
+
+        .room-area {
+            margin-top: 25px;
+            padding-top: 20px;
+
+            border-top: 1px solid #ddd;
+        }
+
+        .room-title {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .room-id {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
+
+            margin: 10px 0;
+        }
+
+        .room-status {
+            font-size: 14px;
+            color: #666;
+
+            min-height: 20px;
+            margin-bottom: 10px;
+        }
+
+        .room-input {
+            width: 90%;
+            padding: 12px;
+
+            border: 1px solid #ccc;
+            border-radius: 8px;
+
+            font-size: 18px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .message {
+            min-height: 20px;
+            margin-top: 10px;
+
+            font-size: 14px;
+            color: #555;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
 
 <div class="timer">
 
-<div class="title">
-    作業通話タイマー
+    <div class="title">
+        作業通話タイマー
+    </div>
+
+    <div id="mode" class="mode">
+        集中
+    </div>
+
+    <div id="time" class="time">
+        50:00
+    </div>
+
+    <div id="set" class="set">
+        SET 1
+    </div>
+
+    <div>
+        <button id="startButton">
+            スタート
+        </button>
+
+        <button id="pauseButton">
+            一時停止
+        </button>
+
+        <button id="resetButton">
+            リセット
+        </button>
+    </div>
+
+
+    <!-- 部屋 -->
+    <div class="room-area">
+
+        <div class="room-title">
+            作業通話の部屋
+        </div>
+
+        <div id="roomStatus" class="room-status">
+            Firebase接続中...
+        </div>
+
+        <!-- 部屋未参加 -->
+        <div id="roomMenu">
+
+            <button id="createRoomButton">
+                部屋を作る
+            </button>
+
+            <br>
+
+            <input
+                id="roomInput"
+                class="room-input"
+                type="text"
+                maxlength="8"
+                placeholder="部屋ID"
+            >
+
+            <br>
+
+            <button id="joinRoomButton">
+                部屋に参加する
+            </button>
+
+        </div>
+
+
+        <!-- 部屋参加後 -->
+        <div id="roomInfo" class="hidden">
+
+            <div>
+                部屋ID
+            </div>
+
+            <div id="roomId" class="room-id">
+                --------
+            </div>
+
+            <div>
+                このIDを相手に送ってください
+            </div>
+
+        </div>
+
+        <div id="message" class="message"></div>
+
+    </div>
+
 </div>
 
-<div id="mode" class="mode">
-    集中
-</div>
 
-<div id="time" class="time">
-    50:00
-</div>
+<script type="module">
 
-<div id="set" class="set">
-    SET 1
-</div>
+    // =========================================================
+    // Firebase
+    // =========================================================
 
-<div>
-    <button id="startButton">
-        スタート
-    </button>
+    import {
+        initializeApp
+    }
+    from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 
-    <button id="pauseButton">
-        一時停止
-    </button>
+    import {
+        getAuth,
+        signInAnonymously
+    }
+    from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
-    <button id="resetButton">
-        リセット
-    </button>
-</div>
+    import {
+        getDatabase,
+        ref,
+        set,
+        get,
+        onValue,
+        runTransaction,
+        onDisconnect
+    }
+    from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
 
-</div>
 
-<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDcfTA9eFDGZqV7Vndbpoee4U75i5Iysxoc",
+        authDomain: "share-timer-dbe49.firebaseapp.com",
+        databaseURL: "https://share-timer-dbe49-default-rtdb.firebaseio.com",
+        projectId: "share-timer-dbe49",
+        storageBucket: "share-timer-dbe49.firebasestorage.app",
+        messagingSenderId: "917755642196",
+        appId: "1:917755642196:web:e3f1b93f2863012b6a88c1"
+    };
+
+
+    const app = initializeApp(firebaseConfig);
+
+    const auth = getAuth(app);
+
+    const db = getDatabase(app);
+
+
+    // =========================================================
+    // タイマー設定
+    // =========================================================
 
     const FOCUS_TIME = 50 * 60;
     const BREAK_TIME = 10 * 60;
 
+
     let mode = "focus";
+
     let remainingSeconds = FOCUS_TIME;
+
     let setCount = 1;
 
-    let timerId = null;
-    let endTime = null;
+    let running = false;
+
+    let endTime = 0;
 
 
-    // ------------------------------------------
+    // Firebaseのサーバー時刻とのズレ
+    let serverTimeOffset = 0;
+
+
+    // 現在参加している部屋
+    let currentRoomId = null;
+
+    let currentTimerRef = null;
+
+    let unsubscribeTimer = null;
+
+
+    // Firebase認証済みユーザー
+    let currentUser = null;
+
+
+    // =========================================================
+    // DOM
+    // =========================================================
+
+    const modeElement =
+        document.getElementById("mode");
+
+    const timeElement =
+        document.getElementById("time");
+
+    const setElement =
+        document.getElementById("set");
+
+    const startButton =
+        document.getElementById("startButton");
+
+    const pauseButton =
+        document.getElementById("pauseButton");
+
+    const resetButton =
+        document.getElementById("resetButton");
+
+    const roomStatus =
+        document.getElementById("roomStatus");
+
+    const roomMenu =
+        document.getElementById("roomMenu");
+
+    const roomInfo =
+        document.getElementById("roomInfo");
+
+    const roomIdElement =
+        document.getElementById("roomId");
+
+    const roomInput =
+        document.getElementById("roomInput");
+
+    const messageElement =
+        document.getElementById("message");
+
+    const createRoomButton =
+        document.getElementById("createRoomButton");
+
+    const joinRoomButton =
+        document.getElementById("joinRoomButton");
+
+
+    // =========================================================
+    // サーバー時刻
+    // =========================================================
+
+    onValue(
+        ref(db, ".info/serverTimeOffset"),
+        (snapshot) => {
+
+            serverTimeOffset =
+                snapshot.val() || 0;
+
+        }
+    );
+
+
+    function serverNow() {
+
+        return Date.now() + serverTimeOffset;
+
+    }
+
+
+    // =========================================================
     // 表示更新
-    // ------------------------------------------
+    // =========================================================
 
     function updateDisplay() {
 
+        let displaySeconds =
+            remainingSeconds;
+
+
+        if (running && endTime > 0) {
+
+            const diff =
+                endTime - serverNow();
+
+            displaySeconds =
+                Math.max(
+                    0,
+                    Math.ceil(diff / 1000)
+                );
+
+        }
+
+
         const minutes =
-            Math.floor(remainingSeconds / 60);
+            Math.floor(displaySeconds / 60);
 
         const seconds =
-            remainingSeconds % 60;
+            displaySeconds % 60;
 
-        document.getElementById("time").textContent =
+
+        timeElement.textContent =
             String(minutes).padStart(2, "0") +
             ":" +
             String(seconds).padStart(2, "0");
 
-        document.getElementById("mode").textContent =
+
+        modeElement.textContent =
             mode === "focus"
                 ? "集中"
                 : "休憩";
 
-        document.getElementById("set").textContent =
+
+        setElement.textContent =
             "SET " + setCount;
+
     }
 
 
-    // ------------------------------------------
-    // タイマー開始
-    // ------------------------------------------
+    // =========================================================
+    // Firebase用タイマー状態
+    // =========================================================
 
-    function startTimer() {
+    function createTimerData() {
 
-        if (timerId !== null) {
-            return;
-        }
+        return {
 
-        endTime =
-            Date.now() +
-            remainingSeconds * 1000;
+            mode: mode,
 
-        timerId =
-            setInterval(updateTimer, 200);
+            running: running,
+
+            endTime: running
+                ? endTime
+                : 0,
+
+            setCount: setCount,
+
+            remainingSeconds: remainingSeconds
+
+        };
+
     }
 
 
-    // ------------------------------------------
-    // タイマー処理
-    // ------------------------------------------
+    // =========================================================
+    // ローカルタイマー
+    // =========================================================
 
     function updateTimer() {
 
-        const diff =
-            endTime - Date.now();
+        if (!running) {
 
-        remainingSeconds =
-            Math.max(
-                0,
-                Math.ceil(diff / 1000)
-            );
+            updateDisplay();
+
+            return;
+        }
+
+
+        const diff =
+            endTime - serverNow();
+
 
         if (diff <= 0) {
 
-            switchMode();
+            if (currentTimerRef) {
+
+                advanceTimer();
+
+            } else {
+
+                advanceLocalTimer();
+
+            }
 
             return;
         }
 
-        updateDisplay();
-    }
-
-
-    // ------------------------------------------
-    // 一時停止
-    // ------------------------------------------
-
-    function pauseTimer() {
-
-        if (timerId === null) {
-            return;
-        }
-
-        const diff =
-            endTime - Date.now();
 
         remainingSeconds =
-            Math.max(
-                0,
-                Math.ceil(diff / 1000)
+            Math.ceil(diff / 1000);
+
+
+        updateDisplay();
+
+    }
+
+
+    // =========================================================
+    // Firebaseタイマーの次状態へ進める
+    // =========================================================
+
+    async function advanceTimer() {
+
+        if (!currentTimerRef) {
+            return;
+        }
+
+
+        try {
+
+            await runTransaction(
+                currentTimerRef,
+                (current) => {
+
+                    if (!current) {
+                        return;
+                    }
+
+
+                    if (
+                        current.running !== true ||
+                        !current.endTime ||
+                        current.endTime > serverNow()
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    let nextMode;
+
+                    let nextSetCount =
+                        Number(current.setCount) || 1;
+
+
+                    if (current.mode === "focus") {
+
+                        nextMode = "break";
+
+                    } else {
+
+                        nextMode = "focus";
+
+                        nextSetCount++;
+
+                    }
+
+
+                    const nextSeconds =
+                        nextMode === "focus"
+                            ? FOCUS_TIME
+                            : BREAK_TIME;
+
+
+                    return {
+
+                        mode: nextMode,
+
+                        running: true,
+
+                        endTime:
+                            serverNow() +
+                            nextSeconds * 1000,
+
+                        setCount:
+                            nextSetCount,
+
+                        remainingSeconds:
+                            nextSeconds
+
+                    };
+
+                }
             );
 
-        clearInterval(timerId);
+        } catch (error) {
 
-        timerId = null;
-        endTime = null;
+            console.error(
+                "タイマー切替エラー:",
+                error
+            );
 
-        updateDisplay();
+        }
+
     }
 
 
-    // ------------------------------------------
-    // リセット
-    // ------------------------------------------
+    // =========================================================
+    // ローカルタイマーの次状態
+    // =========================================================
 
-    function resetTimer() {
-
-        pauseTimer();
-
-        mode = "focus";
-        remainingSeconds = FOCUS_TIME;
-        setCount = 1;
-
-        updateDisplay();
-    }
-
-
-    // ------------------------------------------
-    // 集中 ⇔ 休憩
-    // ------------------------------------------
-
-    function switchMode() {
-
-        clearInterval(timerId);
-
-        timerId = null;
+    function advanceLocalTimer() {
 
         if (mode === "focus") {
 
             mode = "break";
-            remainingSeconds = BREAK_TIME;
+
+            remainingSeconds =
+                BREAK_TIME;
 
         } else {
 
             mode = "focus";
-            remainingSeconds = FOCUS_TIME;
+
+            remainingSeconds =
+                FOCUS_TIME;
 
             setCount++;
+
         }
+
+
+        endTime =
+            serverNow() +
+            remainingSeconds * 1000;
+
+
+        notify();
 
         updateDisplay();
 
-        startTimer();
-
-        notify();
     }
 
 
-    // ------------------------------------------
+    // =========================================================
+    // スタート
+    // =========================================================
+
+    async function startTimer() {
+
+        requestNotificationPermission();
+
+
+        if (running) {
+            return;
+        }
+
+
+        running = true;
+
+        endTime =
+            serverNow() +
+            remainingSeconds * 1000;
+
+
+        if (currentTimerRef) {
+
+            try {
+
+                await set(
+                    currentTimerRef,
+                    createTimerData()
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "スタート保存エラー:",
+                    error
+                );
+
+                running = false;
+
+                endTime = 0;
+
+                alert(
+                    "タイマーを開始できませんでした。\n" +
+                    "FirebaseのDatabaseルールを確認してください。"
+                );
+
+                return;
+
+            }
+
+        }
+
+
+        updateDisplay();
+
+    }
+
+
+    // =========================================================
+    // 一時停止
+    // =========================================================
+
+    async function pauseTimer() {
+
+        if (!running) {
+            return;
+        }
+
+
+        const diff =
+            endTime - serverNow();
+
+
+        remainingSeconds =
+            Math.max(
+                0,
+                Math.ceil(diff / 1000)
+            );
+
+
+        running = false;
+
+        endTime = 0;
+
+
+        if (currentTimerRef) {
+
+            try {
+
+                await set(
+                    currentTimerRef,
+                    createTimerData()
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "一時停止保存エラー:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        updateDisplay();
+
+    }
+
+
+    // =========================================================
+    // リセット
+    // =========================================================
+
+    async function resetTimer() {
+
+        mode = "focus";
+
+        remainingSeconds =
+            FOCUS_TIME;
+
+        setCount = 1;
+
+        running = false;
+
+        endTime = 0;
+
+
+        if (currentTimerRef) {
+
+            try {
+
+                await set(
+                    currentTimerRef,
+                    createTimerData()
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "リセット保存エラー:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        updateDisplay();
+
+    }
+
+
+    // =========================================================
     // 通知
-    // ------------------------------------------
+    // =========================================================
 
     function notify() {
 
@@ -313,20 +820,24 @@
             return;
         }
 
-        if (Notification.permission === "granted") {
+
+        if (
+            Notification.permission ===
+            "granted"
+        ) {
 
             new Notification(
+
                 mode === "focus"
                     ? "集中時間スタート"
                     : "休憩時間スタート"
+
             );
+
         }
+
     }
 
-
-    // ------------------------------------------
-    // 通知許可
-    // ------------------------------------------
 
     function requestNotificationPermission() {
 
@@ -334,49 +845,486 @@
             return;
         }
 
-        if (Notification.permission === "default") {
+
+        if (
+            Notification.permission ===
+            "default"
+        ) {
 
             Notification.requestPermission();
+
         }
+
     }
 
 
-    // ------------------------------------------
-    // ボタン
-    // ------------------------------------------
+    // =========================================================
+    // 部屋ID生成
+    // =========================================================
 
-    document
-        .getElementById("startButton")
-        .addEventListener(
-            "click",
-            () => {
+    function generateRoomId() {
 
-                requestNotificationPermission();
+        const chars =
+            "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
-                startTimer();
+
+        let result = "";
+
+
+        for (let i = 0; i < 8; i++) {
+
+            result +=
+                chars[
+                    Math.floor(
+                        Math.random() *
+                        chars.length
+                    )
+                ];
+
+        }
+
+
+        return result;
+
+    }
+
+
+    // =========================================================
+    // 部屋作成
+    // =========================================================
+
+    async function createRoom() {
+
+        if (!currentUser) {
+
+            messageElement.textContent =
+                "Firebase認証が完了するまでお待ちください。";
+
+            return;
+
+        }
+
+
+        createRoomButton.disabled = true;
+
+        joinRoomButton.disabled = true;
+
+
+        try {
+
+            const roomId =
+                generateRoomId();
+
+
+            const memberRef =
+                ref(
+                    db,
+                    `rooms/${roomId}/members/${currentUser.uid}`
+                );
+
+
+            const timerRef =
+                ref(
+                    db,
+                    `rooms/${roomId}/timer`
+                );
+
+
+            // 自分を部屋のメンバーとして登録
+            await set(
+                memberRef,
+                true
+            );
+
+
+            // 切断時には自分のメンバー情報を削除
+            await onDisconnect(memberRef)
+                .remove();
+
+
+            // 現在のタイマーを部屋に保存
+            await set(
+                timerRef,
+                createTimerData()
+            );
+
+
+            await enterRoom(roomId);
+
+
+            messageElement.textContent =
+                "この部屋IDを相手に送ってください。";
+
+
+        } catch (error) {
+
+            console.error(
+                "部屋作成エラー:",
+                error
+            );
+
+
+            messageElement.textContent =
+                "部屋を作成できませんでした。";
+
+
+            createRoomButton.disabled = false;
+            joinRoomButton.disabled = false;
+
+        }
+
+    }
+
+
+    // =========================================================
+    // 部屋参加
+    // =========================================================
+
+    async function joinRoom() {
+
+        if (!currentUser) {
+
+            messageElement.textContent =
+                "Firebase認証が完了するまでお待ちください。";
+
+            return;
+
+        }
+
+
+        const roomId =
+            roomInput.value
+                .trim()
+                .toUpperCase();
+
+
+        if (!/^[A-Z0-9]{8}$/.test(roomId)) {
+
+            messageElement.textContent =
+                "8文字の部屋IDを入力してください。";
+
+            return;
+
+        }
+
+
+        createRoomButton.disabled = true;
+        joinRoomButton.disabled = true;
+
+
+        try {
+
+            const memberRef =
+                ref(
+                    db,
+                    `rooms/${roomId}/members/${currentUser.uid}`
+                );
+
+
+            const timerRef =
+                ref(
+                    db,
+                    `rooms/${roomId}/timer`
+                );
+
+
+            // 部屋のタイマーが存在するか確認
+            const timerSnapshot =
+                await get(timerRef);
+
+
+            if (!timerSnapshot.exists()) {
+
+                throw new Error(
+                    "部屋が存在しません。"
+                );
+
             }
+
+
+            // 自分の参加枠を原子的に取得
+            const result =
+                await runTransaction(
+                    memberRef,
+                    (current) => {
+
+                        if (current === true) {
+
+                            return true;
+
+                        }
+
+
+                        // 自分がまだ参加していない場合、
+                        // 部屋全体のメンバー数を確認
+                        // ※この判定はルール側でも行います。
+                        return true;
+
+                    }
+                );
+
+
+            if (!result.committed) {
+
+                throw new Error(
+                    "部屋への参加に失敗しました。"
+                );
+
+            }
+
+
+            // 切断時には自分のメンバー情報を削除
+            await onDisconnect(memberRef)
+                .remove();
+
+
+            await enterRoom(roomId);
+
+
+            messageElement.textContent =
+                "部屋に参加しました。";
+
+
+        } catch (error) {
+
+            console.error(
+                "部屋参加エラー:",
+                error
+            );
+
+
+            messageElement.textContent =
+                "部屋に参加できませんでした。\n" +
+                "部屋IDが間違っているか、満員の可能性があります。";
+
+
+            createRoomButton.disabled = false;
+            joinRoomButton.disabled = false;
+
+        }
+
+    }
+
+
+    // =========================================================
+    // 部屋に入る
+    // =========================================================
+
+    async function enterRoom(roomId) {
+
+        currentRoomId =
+            roomId;
+
+
+        currentTimerRef =
+            ref(
+                db,
+                `rooms/${roomId}/timer`
+            );
+
+
+        // 以前の監視を解除
+        if (unsubscribeTimer) {
+
+            unsubscribeTimer();
+
+            unsubscribeTimer = null;
+
+        }
+
+
+        // タイマーをリアルタイム監視
+        unsubscribeTimer =
+            onValue(
+                currentTimerRef,
+                (snapshot) => {
+
+                    const data =
+                        snapshot.val();
+
+
+                    if (!data) {
+                        return;
+                    }
+
+
+                    mode =
+                        data.mode ||
+                        "focus";
+
+
+                    running =
+                        data.running === true;
+
+
+                    setCount =
+                        Number(
+                            data.setCount
+                        ) || 1;
+
+
+                    remainingSeconds =
+                        Number(
+                            data.remainingSeconds
+                        ) || 0;
+
+
+                    endTime =
+                        Number(
+                            data.endTime
+                        ) || 0;
+
+
+                    updateDisplay();
+
+                },
+                (error) => {
+
+                    console.error(
+                        "タイマー監視エラー:",
+                        error
+                    );
+
+                    messageElement.textContent =
+                        "Firebaseからタイマーを取得できません。";
+
+                }
+            );
+
+
+        roomMenu.classList.add(
+            "hidden"
+        );
+
+        roomInfo.classList.remove(
+            "hidden"
         );
 
 
-    document
-        .getElementById("pauseButton")
-        .addEventListener(
-            "click",
-            pauseTimer
-        );
+        roomIdElement.textContent =
+            roomId;
 
 
-    document
-        .getElementById("resetButton")
-        .addEventListener(
-            "click",
-            resetTimer
-        );
+        roomStatus.textContent =
+            "部屋に接続中";
 
 
-    // ------------------------------------------
-    // Service Worker登録
-    // ------------------------------------------
+        createRoomButton.disabled = false;
+        joinRoomButton.disabled = false;
+
+    }
+
+
+    // =========================================================
+    // ボタン
+    // =========================================================
+
+    startButton.addEventListener(
+        "click",
+        startTimer
+    );
+
+
+    pauseButton.addEventListener(
+        "click",
+        pauseTimer
+    );
+
+
+    resetButton.addEventListener(
+        "click",
+        resetTimer
+    );
+
+
+    createRoomButton.addEventListener(
+        "click",
+        createRoom
+    );
+
+
+    joinRoomButton.addEventListener(
+        "click",
+        joinRoom
+    );
+
+
+    roomInput.addEventListener(
+        "input",
+        () => {
+
+            roomInput.value =
+                roomInput.value
+                    .toUpperCase()
+                    .replace(
+                        /[^A-Z0-9]/g,
+                        ""
+                    );
+
+        }
+    );
+
+
+    // =========================================================
+    // Firebase匿名認証
+    // =========================================================
+
+    signInAnonymously(auth)
+
+        .then(() => {
+
+            currentUser =
+                auth.currentUser;
+
+
+            console.log(
+                "Firebase匿名認証成功"
+            );
+
+
+            console.log(
+                "UID:",
+                currentUser.uid
+            );
+
+
+            roomStatus.textContent =
+                "Firebase接続済み";
+
+
+        })
+
+        .catch((error) => {
+
+            console.error(
+                "Firebase匿名認証エラー:",
+                error
+            );
+
+
+            roomStatus.textContent =
+                "Firebase接続エラー";
+
+
+            messageElement.textContent =
+                error.message;
+
+        });
+
+
+    // =========================================================
+    // タイマー更新
+    // =========================================================
+
+    setInterval(
+        updateTimer,
+        200
+    );
+
+
+    // =========================================================
+    // Service Worker
+    // =========================================================
 
     if ("serviceWorker" in navigator) {
 
@@ -386,6 +1334,7 @@
 
                 navigator.serviceWorker
                     .register("sw.js")
+
                     .then(() => {
 
                         console.log(
@@ -393,6 +1342,7 @@
                         );
 
                     })
+
                     .catch((error) => {
 
                         console.error(
@@ -401,61 +1351,19 @@
                         );
 
                     });
+
             }
         );
+
     }
 
 
-    // ------------------------------------------
+    // =========================================================
     // 初期表示
-    // ------------------------------------------
+    // =========================================================
 
     updateDisplay();
 
-</script>
-
-<script type="module">
-    import { initializeApp } 
-        from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-
-    import { getAuth, signInAnonymously } 
-        from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-
-    import { getDatabase } 
-        from "https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js";
-
-
-    // Firebase設定
-    const firebaseConfig = {
-    apiKey: "AIzaSyDcfTA9eFDGZq7Vndbpoee4U75i5Iysxoc",
-    authDomain: "share-timer-dbe49.firebaseapp.com",
-    databaseURL: "https://share-timer-dbe49-default-rtdb.firebaseio.com",
-    projectId: "share-timer-dbe49",
-    storageBucket: "share-timer-dbe49.firebasestorage.app",
-    messagingSenderId: "917755642196",
-    appId: "1:917755642196:web:e3f1b93f2863012b6a88c1"
-    };
-
-
-    // Firebase初期化
-    const app = initializeApp(firebaseConfig);
-
-    // Authentication
-    const auth = getAuth(app);
-
-    // Realtime Database
-    const db = getDatabase(app);
-
-
-    // 匿名ログイン
-    signInAnonymously(auth)
-        .then(() => {
-            console.log("Firebase匿名認証成功");
-            console.log("UID:", auth.currentUser.uid);
-        })
-        .catch((error) => {
-            console.error("Firebase匿名認証エラー:", error);
-        });
 </script>
 
 </body>
